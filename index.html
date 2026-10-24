@@ -54,7 +54,6 @@
     .time-btn { background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.45); color: #ffffff; padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; }
     .time-btn:hover { background: rgba(255, 255, 255, 0.38); }
     .time-btn.active { background: #ffffff; color: #16569c; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
-    .cal-info { font-size: 13px; color: #4b6584; margin-bottom: 14px; font-weight: 600; background: #f1f7fe; display: inline-block; padding: 6px 16px; border-radius: 20px; border: 1px solid #d8eaff; }
     .footer { padding: 6px 22px 12px 22px; display: flex; justify-content: flex-end; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: #7b93b0; opacity: 0.75; letter-spacing: 0.2px; }
   </style>
 </head>
@@ -147,11 +146,10 @@
       <!-- HIỆU CHUẨN SAI SỐ 2 ĐIỂM -->
       <div class="section-box">
         <div class="section-header">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>HIỆU CHUẨN SAI SỐ (2 ĐIỂM CHUẨN)</span>
         </div>
         <div class="section-body">
-          <div class="cal-info" id="calInfo">Đang tải thông số hiệu chuẩn từ mạch...</div>
           <div class="btn-row">
             <button class="btn btn-navy" onclick="sendCommand('cal_hw', 'Đang kích xung EN/CAL hiệu chuẩn MCP6N11...')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="white"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg> Kích EN/CAL</button>
             <button class="btn btn-teal" onclick="sendCommand('cal_ph7', 'Đã lưu mốc Điểm 1 (pH 7.0)!')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="2.2"/><text x="12" y="14.5" text-anchor="middle" fill="white" font-size="7.5" font-weight="900" font-family="Arial">7.0</text></svg> Chuẩn điểm 1 (pH 7.0)</button>
@@ -311,10 +309,6 @@
           pumpTxt.innerText = d.pump ? "ĐANG BƠM" : "ĐANG TẮT";
           badge.className = "pump-pill " + (d.pump ? "on" : "off");
           document.getElementById('modeTxt').innerText = "Chế độ: " + (d.auto ? "Tự động" : "Thủ công");
-
-          if (d.vref !== undefined && d.slope !== undefined) {
-            document.getElementById('calInfo').innerText = `Thông số đầu dò: V_REF = ${d.vref.toFixed(3)}V | Độ dốc (Slope) = ${d.slope.toFixed(2)} mV/pH`;
-          }
 
           localHistory.push({ t: Date.now(), ph: d.ph });
           if (localHistory.length > 600) localHistory.shift();
