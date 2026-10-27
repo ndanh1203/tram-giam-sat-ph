@@ -46,6 +46,7 @@
     .btn-orange { background: linear-gradient(180deg, #f58233 0%, #e05e12 100%); box-shadow: 0 5px 12px rgba(224, 94, 18, 0.35), inset 0 1px 1px rgba(255,255,255,0.35); }
     .btn-teal { background: linear-gradient(180deg, #10a394 0%, #057e72 100%); box-shadow: 0 5px 12px rgba(5, 126, 114, 0.35), inset 0 1px 1px rgba(255,255,255,0.35); }
     .btn-navy { background: linear-gradient(180deg, #435e85 0%, #2a4061 100%); box-shadow: 0 5px 12px rgba(42, 64, 97, 0.35), inset 0 1px 1px rgba(255,255,255,0.3); }
+    .btn-green { background: linear-gradient(180deg, #1fa84c 0%, #117833 100%); box-shadow: 0 5px 12px rgba(17, 120, 51, 0.35), inset 0 1px 1px rgba(255,255,255,0.35); margin-top: 14px; padding: 9px 22px; }
     .status-bar { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 8px 10px 6px 10px; }
     .status-line { flex: 1; height: 1px; background: #cfe2f7; max-width: 170px; }
     .status-content { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #2b578a; min-height: 24px; }
@@ -121,6 +122,10 @@
         </div>
         <div class="section-body" style="padding: 18px 22px 10px 18px;">
           <canvas id="phChart" style="width: 100%; height: 225px; display: block; border-radius: 8px;"></canvas>
+          <button class="btn btn-green" onclick="exportExcel()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Xuất Báo Cáo Excel (CSV)
+          </button>
         </div>
       </div>
 
@@ -224,7 +229,7 @@
       return `${d.getDate()}/${d.getMonth() + 1} ${hh}:${mm}`;
     }
 
-    // ===== VẼ ĐỒ THỊ CANVAS =====
+    // ===== VẼ ĐỒ THỊ CANVAS ĐÃ SỬA LỖI BIẾN DẠNG =====
     function drawChart() {
       const canvas = document.getElementById('phChart');
       if (!canvas) return;
@@ -253,9 +258,9 @@
 
       const now = Date.now();
       const cutoff = now - (currentRangeSec * 1000);
-      let combined = (currentRangeSec <= 300) 
-        ? [...cloudHistory, ...localHistory] 
-        : [...cloudHistory, ...localHistory.filter((_, i) => i % 15 === 0)];
+      
+      // SỬA LỖI Ở ĐÂY: Chỉ nạp dữ liệu local (1s/lần) nếu đang ở mốc 60 giây
+      let combined = (currentRangeSec <= 60) ? [...cloudHistory, ...localHistory] : [...cloudHistory];
 
       combined.sort((a, b) => a.t - b.t);
       let filtered = combined.filter(p => p.t >= cutoff);
@@ -314,7 +319,7 @@
           badge.className = "pump-pill " + (d.pump ? "on" : "off");
           document.getElementById('modeTxt').innerText = "Chế độ: " + (d.auto ? "Tự động" : "Thủ công");
 
-          // Xử lý cờ xóa dữ liệu khi giữ nút BOOT 5s trên ESP32
+          // Xử lý cờ xóa dữ liệu
           if (d.clear === true) {
             localHistory = [];
             cloudHistory = [];
@@ -326,13 +331,53 @@
             try { localStorage.setItem('ph_history_cache', JSON.stringify(localHistory)); } catch (e) {}
           }
 
-          drawChart();
+          // Chỉ cho phép vẽ lại liên tục nếu đang ở mốc 60 giây
+          if (currentRangeSec <= 60) drawChart();
+          
         }).catch(e => console.log("Đang kết nối...", e));
     }
 
     window.onload = () => { drawChart(); loadConfig(); fetchCloudHistory(); updateData(); };
     setInterval(updateData, 1000);
     setInterval(fetchCloudHistory, 30000); 
+
+    // ===== TÍNH NĂNG XUẤT FILE EXCEL (CSV) =====
+    function exportExcel() {
+      if (cloudHistory.length === 0) {
+        showMsg("Chưa có dữ liệu lịch sử để tải xuống!");
+        return;
+      }
+      
+      // Tạo tiêu đề cột (Hỗ trợ tiếng Việt UTF-8 BOM)
+      let csvContent = "\uFEFF"; 
+      csvContent += "Thời gian đo (Ngày - Giờ),Gia tri pH\n";
+
+      // Đổ dữ liệu vào từng hàng
+      cloudHistory.forEach(row => {
+        let dateObj = new Date(row.t);
+        let dateStr = String(dateObj.getDate()).padStart(2, '0') + '/' + 
+                      String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + 
+                      dateObj.getFullYear();
+        let timeStr = String(dateObj.getHours()).padStart(2, '0') + ':' + 
+                      String(dateObj.getMinutes()).padStart(2, '0') + ':' + 
+                      String(dateObj.getSeconds()).padStart(2, '0');
+        
+        csvContent += `${timeStr} ${dateStr},${row.ph.toFixed(2)}\n`;
+      });
+
+      // Tạo liên kết tải ảo và kích hoạt
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "Bao_Cao_Lich_Su_pH.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showMsg("Đã tải xong file Excel báo cáo!");
+    }
 
     // ===== GỬI LỆNH ĐIỀU KHIỂN =====
     function showMsg(txt) {
