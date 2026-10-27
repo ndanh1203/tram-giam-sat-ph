@@ -146,8 +146,8 @@
       <!-- HIỆU CHUẨN SAI SỐ 2 ĐIỂM -->
       <div class="section-box">
         <div class="section-header">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span>HIỆU CHUẨN SAI SỐ </span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>HIỆU CHUẨN SAI SỐ (2 ĐIỂM CHUẨN)</span>
         </div>
         <div class="section-body">
           <div class="btn-row">
@@ -200,7 +200,11 @@
       fetch(`${FB_URL}/History.json`)
         .then(r => r.json())
         .then(data => {
-          if (!data) return;
+          if (!data) {
+            cloudHistory = [];
+            drawChart();
+            return;
+          }
           cloudHistory = Object.keys(data).map(ts => ({
             t: parseInt(ts) * 1000,
             ph: parseFloat(data[ts])
@@ -310,9 +314,17 @@
           badge.className = "pump-pill " + (d.pump ? "on" : "off");
           document.getElementById('modeTxt').innerText = "Chế độ: " + (d.auto ? "Tự động" : "Thủ công");
 
-          localHistory.push({ t: Date.now(), ph: d.ph });
-          if (localHistory.length > 600) localHistory.shift();
-          try { localStorage.setItem('ph_history_cache', JSON.stringify(localHistory)); } catch (e) {}
+          // Xử lý cờ xóa dữ liệu khi giữ nút BOOT 5s trên ESP32
+          if (d.clear === true) {
+            localHistory = [];
+            cloudHistory = [];
+            localStorage.removeItem('ph_history_cache');
+            showMsg("Đã xóa toàn bộ dữ liệu lịch sử từ mạch ESP32!");
+          } else {
+            localHistory.push({ t: Date.now(), ph: d.ph });
+            if (localHistory.length > 600) localHistory.shift();
+            try { localStorage.setItem('ph_history_cache', JSON.stringify(localHistory)); } catch (e) {}
+          }
 
           drawChart();
         }).catch(e => console.log("Đang kết nối...", e));
